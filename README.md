@@ -17,6 +17,7 @@
 - Maximum 3 games per user per day
 - Game results saved in MongoDB
 - Admin daily and user reports
+![Uploading Screenshot 2026-09-28 172936.png…]()
 
  ## Technologies
 
