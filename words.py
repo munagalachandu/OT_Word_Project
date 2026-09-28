@@ -1,0 +1,22 @@
+WORDS = [
+    "APPLE",
+    "HOUSE",
+    "PLANT",
+    "WATER",
+    "MOUSE",
+    "CHAIR",
+    "TABLE",
+    "CLOUD",
+    "BREAD",
+    "LIGHT",
+    "PHONE",
+    "TRAIN",
+    "WORLD",
+    "GREEN",
+    "SMILE",
+    "BEACH",
+    "MUSIC",
+    "BRAVE",
+    "SWEET",
+    "NIGHT"
+]

@@ -1,67 +1,117 @@
-import random
-from users import register, login
+from database import (
+    test_connection,
+    add_word
+)
 
-words = [
-    "APPLE", "HOUSE", "PLANT", "WATER", "MOUSE",
-    "CHAIR", "TABLE", "CLOUD", "BREAD", "LIGHT",
-    "PHONE", "TRAIN", "WORLD", "GREEN", "SMILE",
-    "BEACH", "MUSIC", "BRAVE", "SWEET", "NIGHT"
-]
+from users import (
+    register,
+    login
+)
 
+from game import play_game
 
-def play_game(username):
-    secret_word = random.choice(words)
+from admin import (
+    daily_report,
+    user_report
+)
 
-    print("\n=== GUESS THE WORD ===")
-    print("Player:", username)
-    print("You have 5 attempts.")
-
-    for attempt in range(1, 6):
-        guess = input(f"\nAttempt {attempt}/5: ").upper()
-
-        if len(guess) != 5 or not guess.isalpha():
-            print("Enter exactly 5 letters.")
-            continue
-
-        if guess == secret_word:
-            print("Congratulations! You won!")
-            return
-
-        result = ""
-
-        for i in range(5):
-            if guess[i] == secret_word[i]:
-                result += "🟩"
-            elif guess[i] in secret_word:
-                result += "🟧"
-            else:
-                result += "⬜"
-
-        print(result)
-
-    print("\nBetter luck next time!")
-    print("The word was:", secret_word)
+from words import WORDS
 
 
-while True:
-    print("\n1. Register")
-    print("2. Login")
-    print("3. Exit")
+def setup_words():
 
-    choice = input("Choose an option: ")
+    for word in WORDS:
+        add_word(word)
 
-    if choice == "1":
-        register()
 
-    elif choice == "2":
-        username = login()
+def player_menu(username):
 
-        if username:
+    while True:
+
+        print("\n=== PLAYER MENU ===")
+        print("1. Play Game")
+        print("2. Logout")
+
+        choice = input("Choose: ")
+
+        if choice == "1":
             play_game(username)
 
-    elif choice == "3":
-        print("Goodbye!")
-        break
+        elif choice == "2":
+            break
 
-    else:
-        print("Invalid choice.")
+        else:
+            print("Invalid choice.")
+
+
+def admin_menu():
+
+    while True:
+
+        print("\n=== ADMIN MENU ===")
+        print("1. Daily Report")
+        print("2. User Report")
+        print("3. Logout")
+
+        choice = input("Choose: ")
+
+        if choice == "1":
+            daily_report()
+
+        elif choice == "2":
+            user_report()
+
+        elif choice == "3":
+            break
+
+        else:
+            print("Invalid choice.")
+
+
+def main():
+
+    test_connection()
+
+    setup_words()
+
+    while True:
+
+        print("\n====================")
+        print("   GUESS THE WORD")
+        print("====================")
+
+        print("1. Register")
+        print("2. Login")
+        print("3. Exit")
+
+        choice = input("Choose: ")
+
+        if choice == "1":
+            register()
+
+        elif choice == "2":
+
+            user = login()
+
+            if user:
+
+                username = user["username"]
+                role = user["role"]
+
+                if role == "admin":
+                    admin_menu()
+
+                else:
+                    player_menu(username)
+
+        elif choice == "3":
+
+            print("Thank you for playing!")
+            break
+
+        else:
+            print("Invalid choice.")
+
+
+if __name__ == "__main__":
+    main()
