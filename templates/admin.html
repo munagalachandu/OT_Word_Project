@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Admin Reports</title>
+
+</head>
+
+<body>
+
+<h1>Admin Reports</h1>
+
+
+<h2>Daily Report</h2>
+
+<form action="/admin/daily" method="POST">
+
+    <input
+        type="date"
+        name="date"
+        required
+    >
+
+    <button type="submit">
+        View Report
+    </button>
+
+</form>
+
+
+{% if daily_date %}
+
+<h3>Date: {{ daily_date }}</h3>
+
+<p>
+    Number of users:
+    <b>{{ users_count }}</b>
+</p>
+
+<p>
+    Correct guesses:
+    <b>{{ correct_count }}</b>
+</p>
+
+{% endif %}
+
+
+<hr>
+
+
+<h2>User Report</h2>
+
+<form action="/admin/user" method="POST">
+
+    <input
+        type="text"
+        name="username"
+        placeholder="Username"
+        required
+    >
+
+    <button type="submit">
+        View User
+    </button>
+
+</form>
+
+
+{% if report %}
+
+<h3>User: {{ username }}</h3>
+
+<table border="1" cellpadding="10">
+
+    <tr>
+        <th>Date</th>
+        <th>Words Tried</th>
+        <th>Correct</th>
+    </tr>
+
+    {% for item in report %}
+
+    <tr>
+
+        <td>{{ item.date }}</td>
+
+        <td>{{ item.words_tried }}</td>
+
+        <td>{{ item.correct }}</td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endif %}
+
+
+<br>
+
+<a href="/logout">
+    Logout
+</a>
+
+</body>
+
+</html>

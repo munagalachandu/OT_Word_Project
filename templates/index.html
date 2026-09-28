@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Guess the Word</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: white;
+        }
+
+        h1 {
+            margin-top: 30px;
+        }
+
+        .board {
+            margin: 30px auto;
+            width: 280px;
+        }
+
+        .row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .box {
+            width: 50px;
+            height: 50px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .green {
+            background: #6aaa64;
+        }
+
+        .orange {
+            background: #c9b458;
+        }
+
+        .grey {
+            background: #787c7e;
+        }
+
+        .empty {
+            background: #d3d6da;
+        }
+
+        input {
+            padding: 12px;
+            font-size: 20px;
+            width: 180px;
+            text-align: center;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin-top: 10px;
+            background: #6aaa64;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .message {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px;
+        }
+
+        .error {
+            color: red;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h1>Guess the Word</h1>
+
+<p>Guess the 5-letter word</p>
+
+<div class="board">
+
+    {% for guess in guesses %}
+
+    <div class="row">
+
+        {% for i in range(5) %}
+
+        <div class="box {{ guess.result[i] }}">
+            {{ guess.word[i] }}
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endfor %}
+
+
+    {% for i in range(5 - guesses|length) %}
+
+    <div class="row">
+
+        <div class="box empty"></div>
+        <div class="box empty"></div>
+        <div class="box empty"></div>
+        <div class="box empty"></div>
+        <div class="box empty"></div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+{% if error %}
+
+<p class="message error">
+    {{ error }}
+</p>
+
+{% endif %}
+
+
+{% if message %}
+
+<p class="message">
+    {{ message }}
+</p>
+
+{% if answer %}
+
+<p>The word was: <b>{{ answer }}</b></p>
+
+{% endif %}
+
+{% if game_over %}
+
+<script>
+    alert("{{ message }}");
+    window.location.href = "/new-game";
+</script>
+
+{% endif %}
+
+{% else %}
+
+<form action="/guess" method="POST">
+
+    <input
+        type="text"
+        name="guess"
+        maxlength="5"
+        minlength="5"
+        placeholder="ABCDE"
+        autocomplete="off"
+        required
+    >
+
+    <br>
+
+    <button type="submit">
+        GUESS
+    </button>
+
+</form>
+
+{% endif %}
+
+
+<br>
+
+<a href="/logout">
+    Logout
+</a>
+
+</body>
+
+</html>

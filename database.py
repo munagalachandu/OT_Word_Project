@@ -5,30 +5,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MONGODB_URI = os.getenv("MONGODB_URI")
-
-if not MONGODB_URI:
-    raise ValueError("MONGODB_URI is not set in .env")
-
-client = MongoClient(MONGODB_URI)
+client = MongoClient(os.getenv("MONGODB_URI"))
 
 db = client["guess_the_word"]
 
-users_collection = db["users"]
-words_collection = db["words"]
-games_collection = db["games"]
+users = db["users"]
+words = db["words"]
+games = db["games"]
 
 
 def test_connection():
     client.admin.command("ping")
-    print("MongoDB connected successfully!")
+    print("MongoDB connected!")
 
 
 def add_user(username, password, role="player"):
-    if users_collection.find_one({"username": username}):
+    if users.find_one({"username": username}):
         return False
 
-    users_collection.insert_one({
+    users.insert_one({
         "username": username,
         "password": password,
         "role": role
@@ -37,39 +32,53 @@ def add_user(username, password, role="player"):
     return True
 
 
-def check_user(username, password):
-    user = users_collection.find_one({
+def login_user(username, password):
+    return users.find_one({
         "username": username,
         "password": password
     })
 
-    if user:
-        return user
-
-    return None
-
 
 def add_word(word):
-    if not words_collection.find_one({"word": word}):
-        words_collection.insert_one({
-            "word": word
-        })
+    if not words.find_one({"word": word}):
+        words.insert_one({"word": word})
 
 
 def get_words():
-    documents = words_collection.find({}, {"word": 1, "_id": 0})
+    return [
+        item["word"]
+        for item in words.find({}, {"word": 1, "_id": 0})
+    ]
 
-    return [document["word"] for document in documents]
 
-
-def save_game(username, secret_word, won, guesses):
-    games_collection.insert_one({
+def create_game(username, secret_word):
+    game = {
         "username": username,
         "secret_word": secret_word,
-        "won": won,
-        "guesses": guesses,
-        "played_at": datetime.now()
-    })
+        "guesses": [],
+        "won": False,
+        "finished": False,
+        "date": datetime.now()
+    }
+
+    result = games.insert_one(game)
+
+    return str(result.inserted_id)
+
+
+def update_game(game_id, guesses, won=False, finished=False):
+    from bson import ObjectId
+
+    games.update_one(
+        {"_id": ObjectId(game_id)},
+        {
+            "$set": {
+                "guesses": guesses,
+                "won": won,
+                "finished": finished
+            }
+        }
+    )
 
 
 def games_today(username):
@@ -80,11 +89,37 @@ def games_today(username):
         microsecond=0
     )
 
-    count = games_collection.count_documents({
+    return games.count_documents({
         "username": username,
-        "played_at": {
-            "$gte": start
-        }
+        "date": {"$gte": start}
     })
 
-    return count
+
+def get_daily_report(date_start, date_end):
+    user_count = len(
+        games.distinct(
+            "username",
+            {
+                "date": {
+                    "$gte": date_start,
+                    "$lt": date_end
+                }
+            }
+        )
+    )
+
+    correct_guesses = games.count_documents({
+        "date": {
+            "$gte": date_start,
+            "$lt": date_end
+        },
+        "won": True
+    })
+
+    return user_count, correct_guesses
+
+
+def get_user_report(username):
+    return games.find(
+        {"username": username}
+    ).sort("date", 1)
